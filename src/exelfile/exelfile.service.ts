@@ -14,8 +14,8 @@ export class ExelfileService {
         const worksheet = workbook.addWorksheet('EXEL');
     
         // Add headers
-        worksheet.addRow(['nom', 'numTelephone', 'address','gov', 'delegation', 'bonDeLiv']);
-    
+        worksheet.addRow(['external_ref', 'nom_prenom', 'tel2','echange', 'adresse', 'governorate','cr_bt','description']);
+
         // Save the workbook to a file
         const filePath = `exel_data.xlsx${Date.now()}.xlsx`;
         await workbook.xlsx.writeFile(filePath);
