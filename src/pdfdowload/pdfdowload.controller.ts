@@ -117,8 +117,8 @@ export class PdfdownloadController {
         
         pdfDoc
           
-          .text(`Bon de Livraison No: numero`, { align: 'center', ...textOptions })
-          .text(`Date d'enlévement: Date`, { align: 'center',continued:true, ...textOptions })
+          .text(`Bon de Livraison No: ${colis.reference}`, { align: 'center', ...textOptions })
+          .text(`Date d'enlévement:${colis.dateBl}`, { align: 'center',continued:true, ...textOptions })
           .image(imagePath, xUpperRight, yUpperRight, { width: 100 })
           .text(' ',{align:'center'})
           .moveDown();
@@ -143,7 +143,7 @@ export class PdfdownloadController {
         .text(`Nom:${destinataire.nom}`,{align:'right' })
         .text(`MF:${user.matriculeFiscale}`, {continued:true, align: 'left'} )  
         .text(`Tel:${destinataire.numTelephone}`,{align:'right' })
-        .text(`Adress:${user.gover}`, {continued:true, align: 'left' })  
+        .text(`Adress:${user.adress}`, {continued:true, align: 'left' })  
         .text(`Address:${destinataire.address}`,{align:'right' })
         .text(`Gouvernorat:${user.gover}` ,{continued:true, align: 'left' })
         .text('',{align:'left'})
@@ -173,7 +173,7 @@ export class PdfdownloadController {
 
         const montant=(colis.prixHliv*quantite).toString();
 
-        const prixTot=(colis.prixHliv+8.00).toString();
+        const prixTot=(colis.prixHliv*quantite+colis.prixLiv).toString();
 
           // requires 
         const table = {
@@ -224,7 +224,7 @@ export class PdfdownloadController {
 
           pdfDoc.fontSize(9)
           .font('Helvetica')
-          .text('Bon de Livraison No: number', { align: 'center'}) // Set font size to 18
+          .text(`Bon de Livraison No: ${colis.quantite}`, { align: 'center'}) // Set font size to 18
             .moveDown();
 
           pdfDoc.fontSize(9)
@@ -301,7 +301,12 @@ export class PdfdownloadController {
     
       const montant2=((colis.prixHliv*quantite)+colis.prixLiv).toString();
 
-      const tva=((colis.prixHliv*quantite)+colis.prixLiv)*8/100;
+      const tva=((colis.prixHliv*quantite)+colis.prixLiv)*0.19;
+
+
+      const ttc=((colis.prixHliv*quantite)+colis.prixLiv+tva).toString();
+
+      
 
       const table2 = {
         title: "Details",
@@ -311,8 +316,8 @@ export class PdfdownloadController {
        ],
         rows: [
           [desc,montant2],
-          ["TVA(19%)","8.00"],
-          ["Total Montant TTC",tva],
+          ["TVA(19%)",tva],
+          ["Total Montant TTC",ttc],
        ],
       };
       pdfDoc.table( table2, { 
@@ -345,20 +350,39 @@ export class PdfdownloadController {
          // Format date as 'YYYY-MM-DD'
     
         // Set headers for PDF download
-        const filename = `destinataire_${formattedDateTime}.pdf`;
-        const filePath = path.join(__dirname, '..', '..', 'downloads', filename);
-
-
-        pdfDoc.pipe(fs.createWriteStream(filePath));
-        pdfDoc.end();
-
-        res.header('Content-Type', 'application/pdf');
-        res.header('Content-Disposition', `attachment; filename=${filename}`);
-    
-        res.sendFile(filePath);
-    } catch (error) {
-        // Handle errors (e.g., destinataire not found)
-        res.status(404).json({ message: 'Destinataire not found' });
+        const dirPath = path.resolve(process.cwd(), 'downloads');
+        console.log('Directory path:', dirPath);
+  
+        if (!fs.existsSync(dirPath)) {
+          console.log('Creating directory: downloads');
+          fs.mkdirSync(dirPath, { recursive: true });
         }
+  
+        const filePath = path.resolve(dirPath,  formattedDateTime);
+        console.log('File path:', filePath);
+  
+        await new Promise<void>((resolve, reject) => {
+          pdfDoc.pipe(fs.createWriteStream(filePath))
+            .on('finish', () => {
+              console.log('File writing finished');
+              resolve();
+            })
+            .on('error', (error) => {
+              console.error('File writing error:', error);
+              reject(error);
+            });
+  
+          pdfDoc.end();
+        });
+  
+        console.log(`File path: ${filePath}`);
+  
+        res.header('Content-Type', 'application/pdf');
+        res.header('Content-Disposition', `attachment; filename=${formattedDateTime}`);
+        res.sendFile(filePath);
+      } catch (error) {
+        console.error(error);
+        res.status(404).json({ message: 'Destinataire not found' });
     }
+  }
 }

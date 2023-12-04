@@ -33,11 +33,27 @@ export class ColisService {
 
         return numericValue;
       }
+
+    generateRandomNumber(min: number, max: number): number {
+        // Generate a random number between min (inclusive) and max (exclusive)
+        return Math.floor(Math.random() * (max - min) + min);
+      }
+      
+      
+      // Example usage:
+     ref = (this.generateRandomNumber(1, 100)).toString();
     //Creation Coli
     async create(createColiDto: CreateColiDto) {
+        const currentDate = new Date();
         const idd=uuidv4()
         const newColis= this.colisRepository.create({
             id:this.uuidv4ToInt(idd),
+            dateBl: new Date(
+                currentDate.getFullYear(),
+                currentDate.getMonth(),
+                currentDate.getDate()
+              ),
+            reference:this.ref,
             ...createColiDto});
         const colis= await this.colisRepository.save(newColis);
        

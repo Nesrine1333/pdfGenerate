@@ -22,6 +22,11 @@ export class Colis {
   @Column()
   quantite:number;
 
+  @Column()
+  reference:string;
+
+  @Column()
+  dateBl: Date;
   
 
 

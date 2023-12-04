@@ -8,14 +8,12 @@ async function bootstrap() {
   app.use(cookieParser()); 
 
   // Enable CORS
-  app.use(
-    cors({
-      origin: 'http://localhost:5173', // Replace with your frontend URL
-      credentials: true, // Enable sending cookies and other credentials
-      allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
-      methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
-    }),
-  );
+  app.enableCors({
+    origin: 'http://127.0.0.1:4000',
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  });
   // This allows all origins, methods, and headers. Adjust as needed.
   await app.listen(3000);
 }
