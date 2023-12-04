@@ -25,6 +25,8 @@ import { AuthController } from './auth/auth.controller';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PdfdowloadModule } from './pdfdowload/pdfdowload.module';
 import { PdfdownloadService } from './pdfdowload/pdfdowload.service';
+import { ExelfileService } from './exelfile/exelfile.service';
+import { ExelfileController } from './exelfile/exelfile.controller';
 
 
 @Module({
@@ -54,8 +56,8 @@ import { PdfdownloadService } from './pdfdowload/pdfdowload.service';
       PdfdowloadModule
 
   ],
-  controllers: [AppController, BlController, ColisController, UploadGroupeController, UserController],
-  providers: [AppService, BlService, ColisService, UploadGroupeService, UserService,JwtService,PdfdownloadService],
+  controllers: [AppController, BlController, ColisController, UploadGroupeController, UserController, ExelfileController],
+  providers: [AppService, BlService, ColisService, UploadGroupeService, UserService,JwtService,PdfdownloadService, ExelfileService],
 })
 export class AppModule {}
  
